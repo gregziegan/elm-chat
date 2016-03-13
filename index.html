@@ -38,7 +38,7 @@
 
   app.ports.me.subscribe(function (me) {
     var repeats = participantList.filter(participant => (
-      me.handle === participant.handle
+      me.profile.handle === participant.profile.handle
     ));
     if (repeats.length === 0) {
       participantsService.create(me);
@@ -67,10 +67,11 @@
   })
 
   participantsService.on('updated', participant => {
-    participantList.forEach(current => {
-      if(current.handle === participant.handle) {
-        Object.assign(current, participant);
+    participantList = participantList.map(current => {
+      if(current.profile.handle === participant.profile.handle) {
+        return participant;
       }
+      return current;
     });
     app.ports.participants.send(participantList);
   });

@@ -95,7 +95,7 @@ viewAppContainer address model =
   div [ containerStyle ]
       [ viewChatHeader model
       , viewChat address model
-      , viewLogin address model
+      , if User.isAnonymous model.me.profile then viewLogin address model else div [] []
       ]
 
 viewChat : Signal.Address Action -> Model -> Html

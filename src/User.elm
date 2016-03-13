@@ -23,3 +23,7 @@ anonymous =
 getUserOrAnon : Handle -> Dict Handle Model -> Model
 getUserOrAnon handle users =
   Maybe.withDefault anonymous <| Dict.get handle users
+
+isAnonymous : Model -> Bool
+isAnonymous user =
+  user.handle == anonymous.handle
