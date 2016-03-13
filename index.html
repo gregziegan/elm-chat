@@ -20,11 +20,16 @@
   var msgList = [];
   var userList = [];
   var participantList = [];
+  var loggedInParticipant;
   var app = Elm.fullscreen(Elm.Main, {
     messages: [],
     participants: [],
     users: []
   });
+
+  window.onbeforeunload = function () {
+    participantsService.remove(loggedInParticipant.id)
+  }
 
   app.ports.drafts.subscribe(function (drafts) {
     var draft = drafts[0];
@@ -41,7 +46,9 @@
       me.profile.handle === participant.profile.handle
     ));
     if (repeats.length === 0) {
-      participantsService.create(me);
+      participantsService.create(me, (err, participant) => {
+        loggedInParticipant = participant;
+      });
     } else if (repeats.length > 0) {
       if (repeats[0].status !== me.status) {
         participantsService.update(repeats[0].id, me);
@@ -68,13 +75,21 @@
 
   participantsService.on('updated', participant => {
     participantList = participantList.map(current => {
-      if(current.profile.handle === participant.profile.handle) {
+      if (current.profile.handle === participant.profile.handle) {
         return participant;
       }
       return current;
     });
     app.ports.participants.send(participantList);
   });
+
+  participantsService.on('removed', participant => {
+    participantList = participantList
+      .filter(current => (
+        current.profile.handle !== participant.profile.handle
+      ))
+    app.ports.participants.send(participantList);
+  })
 
   participantsService.find(function(error, participants) {
     participantList = participants.slice();
