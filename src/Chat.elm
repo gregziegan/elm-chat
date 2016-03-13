@@ -175,13 +175,13 @@ view address model =
       draft = Draft.view (Signal.forwardTo address UpdateDraft) model.draft
   in
       div []
-      [ viewMessagesPane model messages
+      [ viewChatHistory model messages
       , draft
       ]
 
-viewMessagesPane : Model -> List Html -> Html
-viewMessagesPane model messages =
-  div [] messages
+viewChatHistory : Model -> List Html -> Html
+viewChatHistory model messages =
+  div [ chatHistoryStyle ] messages
 
 viewInviteRow : User.Model -> Html
 viewInviteRow user =
@@ -199,3 +199,13 @@ viewParticipants participants =
 viewParticipant : User.Model -> Html
 viewParticipant user =
   img [ src user.avatarPath ] []
+
+
+chatHistoryStyle : Attribute
+chatHistoryStyle =
+  style
+      [ ("padding", "30px 30px 20px")
+      , ("border-bottom", "2px solid white")
+      , ("overflow-y", "scroll")
+      , ("height", "50vh")
+      ]

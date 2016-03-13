@@ -128,12 +128,15 @@ viewLoginButtons address model =
 
 viewUserButton : Signal.Address Action -> User.Model -> Html
 viewUserButton address user =
-  button [ onClick address (ChangeUser user.handle) ] [ text user.handle ]
+  button [ onClick address (ChangeUser user.handle) ] [ text user.name ]
 
 backgroundStyle : Attribute
 backgroundStyle =
   style
       [ ("background", "#60B5CC")
+      , ("height", "100vh")
+      , ("-webkit-overflow-scrolling", "touch")
+      , ("overflow", "scroll")
       , ("padding", "40px 0")
       , ("color", "white")
       , ("font-family", "'Source Sans Pro', 'Trebuchet MS', 'Lucida Grande', 'Bitstream Vera Sans', 'Helvetica Neue', sans-serif")
