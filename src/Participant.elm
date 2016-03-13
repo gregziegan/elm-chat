@@ -66,32 +66,34 @@ view participant =
           Idle -> avatarIdleStyle
           Typing -> avatarTypingStyle
   in
-      img [ baseAvatarStyle
-          , avatarStyle
+      img [ avatarStyle
           , src participant.profile.avatarPath
           ]
           []
 
 
-baseAvatarStyle : Attribute
-baseAvatarStyle =
-    style
+baseAvatarStyles : List (String, String)
+baseAvatarStyles =
         [ ("border-radius", "50%")
+        , ("box-sizing", "border-box")
+        , ("-moz-box-sizing", "border-box")
+        , ("-webkit-box-sizing", "border-box")
         , ("height", "40px")
         , ("width", "40px")
+        , ("margin", "2px")
         ]
 
 avatarViewingStyle : Attribute
 avatarViewingStyle =
   style
-      []
+      baseAvatarStyles
 
 avatarIdleStyle : Attribute
 avatarIdleStyle =
   style
-      [ ("opacity", "0.5") ]
+      (List.append [ ("opacity", "0.5") ] baseAvatarStyles)
 
 avatarTypingStyle : Attribute
 avatarTypingStyle =
   style
-      [ ("border", "2px solid #60B5CC") ]
+      (List.append [ ("border", "2px solid #60B5CC") ] baseAvatarStyles)
