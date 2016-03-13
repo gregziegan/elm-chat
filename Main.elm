@@ -89,7 +89,12 @@ update action time model =
 
 view : Signal.Address Action -> Model -> Html
 view address model =
-  div [ style [("width", "400px")]]
+  div [ backgroundStyle ]
+      [ viewAppContainer address model ]
+
+viewAppContainer : Signal.Address Action -> Model -> Html
+viewAppContainer address model =
+  div [ containerStyle ]
       [ viewHeader model
       , Chat.view (Signal.forwardTo address Chat) model.chat
       , viewLogin address model
@@ -116,6 +121,25 @@ viewLoginButtons address model =
 viewUserButton : Signal.Address Action -> User.Model -> Html
 viewUserButton address user =
   button [ onClick address (ChangeUser user.handle) ] [ text user.handle ]
+
+backgroundStyle : Attribute
+backgroundStyle =
+  style
+      [ ("background", "#60B5CC")
+      , ("padding", "40px 0")
+      , ("color", "white")
+      , ("font-family", "'Source Sans Pro', 'Trebuchet MS', 'Lucida Grande', 'Bitstream Vera Sans', 'Helvetica Neue', sans-serif")
+      ]
+
+containerStyle : Attribute
+containerStyle =
+  style
+      [ ("margin", "0 auto")
+      , ("width", "750px")
+      , ("background", "#F2F5F8")
+      , ("border-radius", "5px")
+      , ("color", "#293c4b")
+      ]
 
 app : TimeApp.App Model
 app =
