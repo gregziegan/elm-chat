@@ -92,11 +92,14 @@ view address model =
 
 viewAppContainer : Signal.Address Action -> Model -> Html
 viewAppContainer address model =
-  div [ containerStyle ]
-      [ viewChatHeader model
-      , viewChat address model
-      , if User.isAnonymous model.me.profile then viewLogin address model else div [] []
-      ]
+  if User.isAnonymous model.me.profile then
+    div [ containerStyle ]
+        [ viewLogin address model ]
+  else
+    div [ containerStyle ]
+        [ viewChatHeader model
+        , viewChat address model
+        ]
 
 viewChat : Signal.Address Action -> Model -> Html
 viewChat address model =
