@@ -13,24 +13,22 @@ import TimeApp
 import Message
 import Draft
 import User exposing (anonymous)
-import Debug
+import Participant exposing (Participant, Status, defaultStatus, statusToString, statusFromString)
 
 type alias Model =
-    { currentUser : User.Model
+    { me : Participant
     , chat : Chat.Model
     , shift : Bool
-    , isTyping : Bool
-    , otherTypers : List User.Model
+    , participants : List Participant
     , users : Dict String User.Model
     }
 
 init : User.Model -> Chat.Model -> Model
 init user chat =
-    { currentUser = user
+    { me = Participant.init user
     , chat = chat
     , shift = False
-    , isTyping = False
-    , otherTypers = []
+    , participants = []
     , users = Dict.fromList [ ("anonymous", User.anonymous) ]
     }
 
@@ -48,9 +46,9 @@ type Action
     | ChangeUser User.Handle
     | SetShift Bool
     | Users (List (User.Handle, User.Model))
-    | ListMessages (List Message.Model)
+    | Messages (List Message.Model)
     | IsTyping Bool
-    | OtherTypers (List User.Model)
+    | Participants (List Participant)
 
 update : Action -> Time -> Model -> (Model, Effects Action)
 update action time model =
@@ -61,11 +59,11 @@ update action time model =
     ChangeUser handle ->
       let
           chat = model.chat
-          user = User.getUserOrAnon (Debug.log "handle" handle) model.users
+          user = User.getUserOrAnon handle model.users
           updatedChat = { chat | viewer = user }
       in
           ( { model
-            | currentUser = user
+            | me = Participant.init user
             , chat = Chat.update (Chat.ChangeViewer user) time model.chat
             }
           , Effects.none )
@@ -77,15 +75,15 @@ update action time model =
         | chat = Chat.update (Chat.UpdateAllUsers (Dict.fromList users)) time model.chat
         , users = Dict.fromList users }
       , Effects.none )
-    ListMessages messages ->
+    Messages messages ->
       ( { model | chat = Chat.update (Chat.UpdateMessages messages) time model.chat }
       , Effects.none )
     IsTyping bool ->
-      ( { model | isTyping = bool }
+      ( { model | me = if bool then Participant.initWithStatus model.me.profile (statusToString Participant.Typing) else Participant.init model.me.profile }
       , Effects.none )
-    OtherTypers typers ->
-      ( { model | otherTypers = typers }
-      , Effects.none )
+    Participants participants ->
+      ( { model | participants = participants }
+        , Effects.none )
 
 view : Signal.Address Action -> Model -> Html
 view address model =
@@ -95,18 +93,25 @@ view address model =
 viewAppContainer : Signal.Address Action -> Model -> Html
 viewAppContainer address model =
   div [ containerStyle ]
-      [ viewHeader model
-      , Chat.view (Signal.forwardTo address Chat) model.chat
+      [ viewChatHeader model
+      , viewChat address model
       , viewLogin address model
-      , div [] (List.map (\user -> p [] [ text (user.name ++ " is typing") ]) model.otherTypers)
       ]
 
-viewHeader : Model -> Html
-viewHeader model =
-  div []
-      [ h2 [] [ text "Elm Chat"]
-      , p [] [ text (if model.currentUser.handle == "anonymous" then "Please login" else ("Welcome, " ++ model.currentUser.name)) ]
-      ]
+viewChat : Signal.Address Action -> Model -> Html
+viewChat address model =
+  div [ chatStyle ]
+      [ Chat.view (Signal.forwardTo address Chat) model.chat ]
+
+viewChatHeader : Model -> Html
+viewChatHeader model =
+  div [ chatHeaderStyle ]
+      [ viewParticipantList model.participants ]
+
+viewParticipantList : List Participant -> Html
+viewParticipantList participants =
+  div [ participantListStyle ]
+      (List.map Participant.view participants)
 
 viewLogin : Signal.Address Action -> Model -> Html
 viewLogin address model =
@@ -135,10 +140,31 @@ containerStyle : Attribute
 containerStyle =
   style
       [ ("margin", "0 auto")
-      , ("width", "750px")
+      , ("width", "490px")
       , ("background", "#F2F5F8")
       , ("border-radius", "5px")
       , ("color", "#293c4b")
+      ]
+
+chatHeaderStyle : Attribute
+chatHeaderStyle =
+  style
+      [ ("padding", "20px")
+      , ("border-bottom", "2px solid white")
+      ]
+
+participantListStyle : Attribute
+participantListStyle =
+  style
+      [ ("display", "flex")
+      , ("align-items", "center")
+      ]
+
+chatStyle : Attribute
+chatStyle =
+  style
+      [ ("border-top-right-radius", "5px")
+      , ("border-bottom-right-radius", "5px")
       ]
 
 app : TimeApp.App Model
@@ -147,8 +173,8 @@ app =
     { init = (initialModel, Effects.none )
     , update = update
     , view = view
-    , inputs = [ Signal.map ListMessages listMessages
-               , Signal.map OtherTypers otherTypers
+    , inputs = [ Signal.map Messages messages
+               , Signal.map Participants participants
                , Signal.map Users users
                , Signal.map IsTyping (second `since` Keyboard.presses)
                , Signal.map SetShift Keyboard.shift
@@ -163,13 +189,13 @@ port tasks : Signal (Task.Task Never ())
 port tasks =
     app.tasks
 
-port listMessages : Signal (List Message.Model)
-port otherTypers : Signal (List User.Model)
+port messages : Signal (List Message.Model)
+port participants : Signal (List Participant)
 port users : Signal (List (User.Handle, User.Model))
 
-port typing : Signal (User.Model, Bool)
-port typing =
-  Signal.map (\m -> (m.currentUser, m.isTyping)) app.model
+port me : Signal Participant
+port me =
+  Signal.map (\model -> model.me) app.model
     |> Signal.dropRepeats
 
 port drafts : Signal (List Draft.Model)

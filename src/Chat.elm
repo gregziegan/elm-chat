@@ -171,30 +171,22 @@ getLastMentionIndex message =
 view : Signal.Address Action -> Model -> Html
 view address model =
   let
-      participants = List.map (\h -> User.getUserOrAnon h model.allUsers) <| Set.toList model.participants
       messages = List.map (\m -> Message.view (Signal.forwardTo address (UpdateMessage m.id)) m) model.messages
       draft = Draft.view (Signal.forwardTo address UpdateDraft) model.draft
   in
       div []
-      [ viewParticipants participants
-      , viewMessagesPane model messages
+      [ viewMessagesPane model messages
       , draft
       ]
 
 viewMessagesPane : Model -> List Html -> Html
 viewMessagesPane model messages =
-  div []
-      (
-        if model.showMentionList then
-          [Autocomplete.viewMenu model.mentionComplete]
-        else
-          messages
-      )
+  div [] messages
 
 viewInviteRow : User.Model -> Html
 viewInviteRow user =
   div []
-      [ img [ src user.avatarPath, avatarStyle ] []
+      [ img [ src user.avatarPath] []
       , p [] [ text (user.name ++ "  (" ++ user.handle ++ ")") ]
       ]
 
@@ -206,12 +198,4 @@ viewParticipants participants =
 
 viewParticipant : User.Model -> Html
 viewParticipant user =
-  img [ src user.avatarPath, avatarStyle ] []
-
-avatarStyle : Attribute
-avatarStyle =
-    style
-        [ ("border-radius", "50%")
-        , ("height", "40px")
-        , ("width", "40px")
-        ]
+  img [ src user.avatarPath ] []

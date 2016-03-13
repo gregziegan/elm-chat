@@ -16,11 +16,13 @@
     .configure(feathers.socketio(socket));
   var chatService = app.service('chat');
   var usersService = app.service('users');
+  var participantsService = app.service('participants');
   var msgList = [];
   var userList = [];
+  var participantList = [];
   var app = Elm.fullscreen(Elm.Main, {
-    listMessages: [],
-    otherTypers: [],
+    messages: [],
+    participants: [],
     users: []
   });
 
@@ -34,24 +36,48 @@
     chatService.create(message);
   });
 
-  app.ports.typing.subscribe(function (userTyping) {
-    socket.emit('typing', userTyping);
+  app.ports.me.subscribe(function (me) {
+    var repeats = participantList.filter(participant => (
+      me.handle === participant.handle
+    ));
+    if (repeats.length === 0) {
+      participantsService.create(me);
+    } else if (repeats.length > 0) {
+      if (repeats[0].status !== me.status) {
+        participantsService.update(repeats[0].id, me);
+      }
+    }
   });
-
-  socket.on('typing', function (users) {
-    app.ports.otherTypers.send(users);
-  })
 
   function addMessage (msg) {
     msgList.push(msg);
-    app.ports.listMessages.send(msgList);
+    app.ports.messages.send(msgList);
   }
 
   chatService.on('created', addMessage);
 
   chatService.find(function(error, messages) {
     msgList = messages.slice();
-    app.ports.listMessages.send(messages);
+    app.ports.messages.send(messages);
+  });
+
+  participantsService.on('created', participant => {
+    participantList.push(participant);
+    app.ports.participants.send(participantList);
+  })
+
+  participantsService.on('updated', participant => {
+    participantList.forEach(current => {
+      if(current.handle === participant.handle) {
+        Object.assign(current, participant);
+      }
+    });
+    app.ports.participants.send(participantList);
+  });
+
+  participantsService.find(function(error, participants) {
+    participantList = participants.slice();
+    app.ports.participants.send(participants);
   });
 
   usersService.find(function(error, users) {
