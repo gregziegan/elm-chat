@@ -1,0 +1,22 @@
+{
+  "name": "elm-chat",
+  "version": "0.1.0",
+  "description": "An example chat application",
+  "repository": "https://github.com/thebritican/elm-chat",
+  "license": "BSD-3-Clause",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon index.js --exec node",
+    "serve": "node index.js"
+  },
+  "author": "Greg Ziegan<greg.ziegan@gmail.com>",
+  "devDependencies": {
+    "nodemon": "^1.8.1"
+  },
+  "dependencies": {
+    "body-parser": "^1.14.2",
+    "feathers": "^1.3.0",
+    "feathers-memory": "^0.6.0",
+    "socketio": "^1.0.0"
+  }
+}

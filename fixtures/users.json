@@ -1,0 +1,23 @@
+{
+  "topcoder":
+    {
+      "id": "1",
+      "handle": "topcoder",
+      "name": "Grace Hopper",
+      "avatarPath": "http://api.adorable.io/avatar/40/topcoder"
+    },
+  "AIviator":
+    {
+      "id": "2",
+      "handle": "AIviator",
+      "name": "Alan Turing",
+      "avatarPath": "http://api.adorable.io/avatar/40/aiviator"
+    },
+  "firstcoder":
+    {
+      "id": "3",
+      "handle": "firstcoder",
+      "name": "Ada Lovelace",
+      "avatarPath": "http://api.adorable.io/avatar/40/firstcoder"
+    }
+}

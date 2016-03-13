@@ -1,0 +1,64 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>Elm Chat</title>
+</head>
+
+<body>
+<script type="text/javascript" src="./elm.js"></script>
+<script src="/socket.io/socket.io.js"></script>
+<script src="http://rawgit.com/feathersjs/feathers-client/release/dist/feathers.js"></script>
+<script type="text/javascript">
+  var socket = io();
+  var app = feathers()
+    .configure(feathers.socketio(socket));
+  var chatService = app.service('chat');
+  var usersService = app.service('users');
+  var msgList = [];
+  var userList = [];
+  var app = Elm.fullscreen(Elm.Main, {
+    listMessages: [],
+    otherTypers: [],
+    users: []
+  });
+
+  app.ports.drafts.subscribe(function (drafts) {
+    var draft = drafts[0];
+    var message = {
+      sender: draft.author,
+      sentAt: new Date().getTime(),
+      content: draft.content
+    };
+    chatService.create(message);
+  });
+
+  app.ports.typing.subscribe(function (userTyping) {
+    socket.emit('typing', userTyping);
+  });
+
+  socket.on('typing', function (users) {
+    app.ports.otherTypers.send(users);
+  })
+
+  function addMessage (msg) {
+    msgList.push(msg);
+    app.ports.listMessages.send(msgList);
+  }
+
+  chatService.on('created', addMessage);
+
+  chatService.find(function(error, messages) {
+    msgList = messages.slice();
+    app.ports.listMessages.send(messages);
+  });
+
+  usersService.find(function(error, users) {
+    var allUsers = users.map(user => [user.handle, user]);
+    userList = allUsers;
+    app.ports.users.send(allUsers);
+  })
+</script>
+</body>
+</html>
