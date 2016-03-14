@@ -94,6 +94,7 @@ sendStyle =
         , ("font-weight", "bold")
         , ("background", "#F2F5F8")
         , ("cursor", "pointer")
+        , ("margin", "0 5px 0 5px")
         ]
 
 type KeyDown

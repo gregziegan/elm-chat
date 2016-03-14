@@ -169,7 +169,7 @@ containerStyle =
       , ("width", "75%")
       , ("background", "#F2F5F8")
       , ("border-radius", "5px")
-      , ("color", "#293c4b")
+      , ("border", "2px solid #293c4b")
       ]
 
 chatHeaderStyle : Attribute
