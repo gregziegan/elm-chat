@@ -10,8 +10,5 @@
         {
             "url": "https://github.com/srid/heroku-buildpack-elm"
         },
-        {
-            "url": "https://github.com/hone/heroku-buildpack-static"
-        }
     ]
 }
