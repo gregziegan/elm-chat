@@ -160,7 +160,6 @@ backgroundStyle =
       , ("overflow", "scroll")
       , ("padding", "40px 0")
       , ("color", "white")
-      , ("font-family", "'Source Sans Pro', 'Trebuchet MS', 'Lucida Grande', 'Bitstream Vera Sans', 'Helvetica Neue', sans-serif")
       ]
 
 containerStyle : Attribute
