@@ -1,0 +1,6 @@
+{
+  "name": "Elm Chat",
+  "description": "A simple Elm chat app",
+  "repository": "https://github.com/thebritican/elm-chat",
+  "keywords": ["elm"]
+}
