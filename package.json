@@ -7,7 +7,7 @@
   "main": "index.js",
   "scripts": {
     "serve": "nodemon index.js --exec node",
-    "start": "elm-make App.elm --output elm.js; node index.js"
+    "start": "node index.js"
   },
   "author": "Greg Ziegan<greg.ziegan@gmail.com>",
   "devDependencies": {
