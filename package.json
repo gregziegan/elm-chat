@@ -6,8 +6,8 @@
   "license": "BSD-3-Clause",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon index.js --exec node",
-    "serve": "node index.js"
+    "serve": "nodemon index.js --exec node",
+    "start": "node index.js"
   },
   "author": "Greg Ziegan<greg.ziegan@gmail.com>",
   "devDependencies": {
