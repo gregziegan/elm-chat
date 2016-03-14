@@ -170,18 +170,30 @@ getLastMentionIndex message =
 
 view : Signal.Address Action -> Model -> Html
 view address model =
-  let
-      messages = List.map (\m -> Message.view (Signal.forwardTo address (UpdateMessage m.id)) m) model.messages
-      draft = Draft.view (Signal.forwardTo address UpdateDraft) model.draft
-  in
-      div []
-      [ viewChatHistory model messages
-      , draft
+  div []
+      [ viewChatHistory address model
+      , viewDraftBox address model
       ]
 
-viewChatHistory : Model -> List Html -> Html
-viewChatHistory model messages =
-  div [ chatHistoryStyle ] messages
+viewChatHistory : Signal.Address Action -> Model -> Html
+viewChatHistory address model =
+  let
+      getMessageView message =
+        let
+            direction =
+              case message.sender of
+                Just sender -> if sender.handle == model.viewer.handle then Message.Right else Message.Left
+                Nothing -> Message.Right
+        in
+            Message.view (Signal.forwardTo address (UpdateMessage message.id)) message direction
+      messages = List.map getMessageView model.messages
+  in
+      div [ chatHistoryStyle ] messages
+
+viewDraftBox : Signal.Address Action -> Model -> Html
+viewDraftBox address model =
+  div [ draftBoxStyle ]
+      [ Draft.view (Signal.forwardTo address UpdateDraft) model.draft ]
 
 viewInviteRow : User.Model -> Html
 viewInviteRow user =
@@ -209,3 +221,8 @@ chatHistoryStyle =
       , ("overflow-y", "scroll")
       , ("height", "50vh")
       ]
+
+draftBoxStyle : Attribute
+draftBoxStyle =
+  style
+      [ ("padding", "30px") ]

@@ -87,8 +87,21 @@ update action time model =
 
 view : Signal.Address Action -> Model -> Html
 view address model =
+  div []
+      [ viewElmLink
+      , viewBackground address model
+      ]
+
+viewBackground : Signal.Address Action -> Model -> Html
+viewBackground address model =
   div [ backgroundStyle ]
-      [ viewAppContainer address model ]
+      [ viewAppContainer address model
+      ]
+
+viewElmLink : Html
+viewElmLink =
+  a [ href "http://elm-lang.org/", value "_blank", elmLinkStyle ]
+    [ img [ style [ ("width", "24px") ], src "http://elm-lang.org/assets/logo.svg" ] [] ]
 
 viewAppContainer : Signal.Address Action -> Model -> Html
 viewAppContainer address model =
@@ -130,6 +143,14 @@ viewUserButton : Signal.Address Action -> User.Model -> Html
 viewUserButton address user =
   button [ onClick address (ChangeUser user.handle) ] [ text user.name ]
 
+elmLinkStyle : Attribute
+elmLinkStyle =
+  style
+      [ ("position", "absolute")
+      , ("left", "1em")
+      , ("margin-top", "1em")
+      ]
+
 backgroundStyle : Attribute
 backgroundStyle =
   style
@@ -146,7 +167,7 @@ containerStyle : Attribute
 containerStyle =
   style
       [ ("margin", "0 auto")
-      , ("width", "490px")
+      , ("width", "75%")
       , ("background", "#F2F5F8")
       , ("border-radius", "5px")
       , ("color", "#293c4b")

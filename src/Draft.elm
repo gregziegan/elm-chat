@@ -50,9 +50,9 @@ update action time model =
 
 view : Signal.Address Action -> Model -> Html
 view address model =
-    div []
+    div [ draftStyle ]
         [ textarea
-              [ placeholder "Need some help?"
+              [ placeholder "Enter your message"
               , value model.content
               , onKeydown address model
               , on "input" targetValue (Signal.message address << Content)
@@ -62,16 +62,38 @@ view address model =
               , cols 10
               ]
               []
+        , button [ sendStyle, onClick address Send ] [ text "send"]
         ]
+
+
+draftStyle : Attribute
+draftStyle =
+  style
+      [ ("display", "flex")
+      , ("justify-content", "space-around")
+      ]
 
 textareaStyle : Attribute
 textareaStyle =
     style
-        [ ("width", "100%")
-        , ("padding", "10px 0")
-        , ("font-size", "1em")
+        [ ("width", "80%")
+        , ("border", "none")
+        , ("padding", "10px 15px")
+        , ("border-radius", "5px")
         , ("resize", "none")
         , ("overflow", "hidden")
+        ]
+
+sendStyle : Attribute
+sendStyle =
+    style
+        [ ("color", "#7FD13B")
+        , ("font-size", "16px")
+        , ("text-transform", "uppercase")
+        , ("border", "none")
+        , ("font-weight", "bold")
+        , ("background", "#F2F5F8")
+        , ("cursor", "pointer")
         ]
 
 type KeyDown
