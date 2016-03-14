@@ -175,6 +175,11 @@ view address model =
       , viewDraftBox address model
       ]
 
+viewReadOnly : Signal.Address Action -> Model -> Html
+viewReadOnly address model =
+  div []
+      [ viewChatHistory address model ]
+
 viewChatHistory : Signal.Address Action -> Model -> Html
 viewChatHistory address model =
   let
@@ -188,7 +193,7 @@ viewChatHistory address model =
             Message.view (Signal.forwardTo address (UpdateMessage message.id)) message direction
       messages = List.map getMessageView model.messages
   in
-      div [ chatHistoryStyle ] messages
+      div [ id "chat-history", chatHistoryStyle ] messages
 
 viewDraftBox : Signal.Address Action -> Model -> Html
 viewDraftBox address model =

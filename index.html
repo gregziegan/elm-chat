@@ -33,7 +33,8 @@
   var app = Elm.fullscreen(Elm.Main, {
     messages: [],
     participants: [],
-    users: []
+    users: [],
+    scrollToBottom: false
   });
 
   window.onbeforeunload = function () {
@@ -62,6 +63,26 @@
       if (repeats[0].status !== me.status) {
         participantsService.update(repeats[0].id, me);
       }
+    }
+  });
+
+  function scrollTo(element, to, duration) {
+    if (duration <= 0) return;
+    var difference = to - element.scrollTop;
+    var perTick = difference / duration * 10;
+
+    setTimeout(function() {
+        element.scrollTop = element.scrollTop + perTick;
+        if (element.scrollTop === to) return;
+        scrollTo(element, to, duration - 10);
+    }, 10);
+  }
+
+  app.ports.autoScroll.subscribe(function (scrollToBottom) {
+    var el = document.getElementById('chat-history');
+    if (scrollToBottom) {
+      scrollTo(el, el.scrollHeight, 350);
+      app.ports.scrollToBottom.send(false);
     }
   });
 

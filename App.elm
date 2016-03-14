@@ -21,6 +21,7 @@ type alias Model =
     , shift : Bool
     , participants : List Participant
     , users : Dict String User.Model
+    , scrollToBottom : Bool
     }
 
 init : User.Model -> Chat.Model -> Model
@@ -30,6 +31,7 @@ init user chat =
     , shift = False
     , participants = []
     , users = Dict.fromList [ ("anonymous", User.anonymous) ]
+    , scrollToBottom = False
     }
 
 initialModel : Model
@@ -49,6 +51,8 @@ type Action
     | Messages (List Message.Model)
     | IsTyping Bool
     | Participants (List Participant)
+    | ScrollToBottom Bool
+    | ScrollToBottomOnRender Time
 
 update : Action -> Time -> Model -> (Model, Effects Action)
 update action time model =
@@ -77,13 +81,19 @@ update action time model =
       , Effects.none )
     Messages messages ->
       ( { model | chat = Chat.update (Chat.UpdateMessages messages) time model.chat }
-      , Effects.none )
+      , Effects.tick ScrollToBottomOnRender )
     IsTyping bool ->
       ( { model | me = if bool then Participant.initWithStatus model.me.profile (statusToString Participant.Typing) else Participant.init model.me.profile }
       , Effects.none )
     Participants participants ->
       ( { model | participants = participants }
-        , Effects.none )
+      , Effects.none )
+    ScrollToBottom bool ->
+      ( { model | scrollToBottom = bool }
+      , Effects.none )
+    ScrollToBottomOnRender clockTime ->
+      ( { model | scrollToBottom = True }
+      , Effects.none )
 
 view : Signal.Address Action -> Model -> Html
 view address model =
@@ -107,17 +117,26 @@ viewAppContainer : Signal.Address Action -> Model -> Html
 viewAppContainer address model =
   if User.isAnonymous model.me.profile then
     div [ containerStyle ]
-        [ viewLogin address model ]
+        [ viewChat address model True
+        , viewLogin address model
+        ]
   else
     div [ containerStyle ]
         [ viewChatHeader model
-        , viewChat address model
+        , viewChat address model False
         ]
 
-viewChat : Signal.Address Action -> Model -> Html
-viewChat address model =
-  div [ chatStyle ]
-      [ Chat.view (Signal.forwardTo address Chat) model.chat ]
+viewChat : Signal.Address Action -> Model -> Bool -> Html
+viewChat address model readOnly =
+  let
+      chat =
+        if readOnly then
+          Chat.viewReadOnly (Signal.forwardTo address Chat) model.chat
+        else
+          Chat.view (Signal.forwardTo address Chat) model.chat
+  in
+      div [ chatStyle ]
+          [ chat ]
 
 viewChatHeader : Model -> Html
 viewChatHeader model =
@@ -204,6 +223,7 @@ app =
                , Signal.map Users users
                , Signal.map IsTyping (second `since` Keyboard.presses)
                , Signal.map SetShift Keyboard.shift
+               , Signal.map ScrollToBottom scrollToBottom
                ]
     }
 
@@ -218,6 +238,7 @@ port tasks =
 port messages : Signal (List Message.Model)
 port participants : Signal (List Participant)
 port users : Signal (List (User.Handle, User.Model))
+port scrollToBottom : Signal Bool
 
 port me : Signal Participant
 port me =
@@ -227,4 +248,9 @@ port me =
 port drafts : Signal (List Draft.Model)
 port drafts =
   Signal.map (\m -> m.chat.outbox) app.model
+    |> Signal.dropRepeats
+
+port autoScroll : Signal Bool
+port autoScroll =
+  Signal.map (\model -> model.scrollToBottom) app.model
     |> Signal.dropRepeats
