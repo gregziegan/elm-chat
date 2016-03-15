@@ -1,5 +1,7 @@
-module User where
+module User (..) where
+
 import Dict exposing (Dict)
+
 
 type alias Model =
   { id : ID
@@ -8,10 +10,16 @@ type alias Model =
   , avatarPath : String
   }
 
-type alias ID = String
-type alias Handle = String
 
-anonymous: Model
+type alias ID =
+  String
+
+
+type alias Handle =
+  String
+
+
+anonymous : Model
 anonymous =
   { id = "0"
   , handle = "anonymous"
@@ -23,6 +31,7 @@ anonymous =
 getUserOrAnon : Handle -> Dict Handle Model -> Model
 getUserOrAnon handle users =
   Maybe.withDefault anonymous <| Dict.get handle users
+
 
 isAnonymous : Model -> Bool
 isAnonymous user =
