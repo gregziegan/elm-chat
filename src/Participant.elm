@@ -66,10 +66,13 @@ view participant =
           Idle -> avatarIdleStyle
           Typing -> avatarTypingStyle
   in
-      img [ avatarStyle
-          , src participant.profile.avatarPath
+      div [ class "participant-avatar" ]
+          [ img [ avatarStyle, src participant.profile.avatarPath ] []
+          , div [ class "tooltip" ]
+                [ p [] [ text participant.profile.name ]
+                , p [] [ text participant.status ]
+                ]
           ]
-          []
 
 
 baseAvatarStyles : List (String, String)
