@@ -4,7 +4,7 @@
   "repository": "https://github.com/thebritican/elm-chat",
   "keywords": ["elm"],
   "env": {
-    "ELM_COMPILE": "elm-make App.elm --output elm.js"
+    "ELM_COMPILE": "elm-make ./src/App.elm --output elm.js"
   },
   "buildpacks": [
         {
